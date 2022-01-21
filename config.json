@@ -1,0 +1,33 @@
+{
+  "kata_kunci": "badminton asic",
+  "kode_channel": "/c/BadmintonAsic",
+  "nama_playlist": "bsic",
+  "kode_playlist": "/watch?v=fx87Kx7qO40&list=PL0h__DPaUWkqXyAj2Qu-pj965poZx3Lem",
+  "kode_halaman_playlist": "/playlist?list=PL0h__DPaUWkqXyAj2Qu-pj965poZx3Lem",
+  "tempat_profile": "/home/rhein/.config/chromium/",
+  "profile": [
+    "Profile 1",
+    "Profile 2",
+    "Profile 3"
+  ],
+  "akun": [
+    {
+      "pengguna": "yoniapula",
+      "sandi": "!As1234567890"
+    },
+    {
+      "pengguna": "amirantungo",
+      "sandi": "!As1234567890"
+    },
+    {
+      "pengguna": "anditenry",
+      "sandi": "!As1234567890"
+    }
+  ]
+  ,
+  "login_mode": {
+    "aktif": false,
+    "halaman_login": "https://stackoverflow.com"
+  },
+  "proxy": []
+}
