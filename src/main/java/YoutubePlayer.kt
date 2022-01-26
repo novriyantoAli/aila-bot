@@ -102,7 +102,6 @@ class YoutubePlayer(val username: String?, val password: String?, private val pl
         options.setExperimentalOption("useAutomationExtension", false)
         options.setExperimentalOption("excludeSwitches", listOf("enable-automation"))
         options.addArguments("user-agent=DN")
-        options.addArguments("--headless")
         options.addArguments("user-data-dir=$profile")
 
         return options
