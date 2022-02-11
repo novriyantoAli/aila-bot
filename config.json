@@ -1,33 +1,75 @@
 {
-  "kata_kunci": "badminton asic",
-  "kode_channel": "/c/BadmintonAsic",
-  "nama_playlist": "bsic",
-  "kode_playlist": "/watch?v=fx87Kx7qO40&list=PL0h__DPaUWkqXyAj2Qu-pj965poZx3Lem",
-  "kode_halaman_playlist": "/playlist?list=PL0h__DPaUWkqXyAj2Qu-pj965poZx3Lem",
-  "tempat_profile": "/home/rhein/.config/chromium/",
-  "profile": [
+  "keyword": "badminton asic",
+  "channelName": "/c/BadmintonAsic",
+  "channelPlaylistTargetName": "bsic",
+  "channelPlaylistTargetCode": "PL0h__DPaUWkqXyAj2Qu-pj965poZx3Lem",
+  "port": 7070,
+  "configurationProfile": [
+    {
+      "os": "windows",
+      "pathPrefix": "C:\\Users\\",
+      "pathPostfix": "\\AppData\\Local\\Google\\Chrome\\User Data\\",
+      "profileDefault": "profile_default",
+      "command": {
+        "browser": "chrome",
+        "browserArguments": [
+          "https://www.youtube.com",
+          "--profile-directory="
+        ],
+        "killer": "",
+        "killerArguments": [
+          ""
+        ]
+      }
+    },
+    {
+      "os": "linux",
+      "pathPrefix": "/home/",
+      "pathPostfix": "/.config/chromium/",
+      "profileDefault": "profile_default",
+      "command":     {
+        "browser": "chromium",
+        "browserArguments": [
+          "https://www.youtube.com",
+          "--profile-directory="
+        ],
+        "killer": "pkill",
+        "killerArguments": [
+          "chromium"
+        ]
+      }
+    }
+  ],
+  "profileList": [
     "Profile 1",
     "Profile 2",
     "Profile 3"
   ],
-  "akun": [
-    {
-      "pengguna": "yoniapula",
-      "sandi": "!As1234567890"
-    },
-    {
-      "pengguna": "amirantungo",
-      "sandi": "!As1234567890"
-    },
-    {
-      "pengguna": "anditenry",
-      "sandi": "!As1234567890"
-    }
-  ]
-  ,
-  "login_mode": {
-    "aktif": false,
-    "halaman_login": "https://stackoverflow.com"
+  "profile": {
+    "prefix": "profile",
+    "split": "_",
+    "detail": [
+      {
+        "name": "yoniapula",
+        "username": "yoniapula",
+        "password": "!As1234567890"
+      },
+      {
+        "name": "amirantungo",
+        "username": "amirantungo",
+        "password": "!As1234567890"
+      }
+    ]
   },
-  "proxy": []
+  "configurationAccount": [
+    {
+      "username": "yoniapula",
+      "password": "!As1234567890"
+    },
+    {
+      "username": "amirantungo",
+      "password": "!As1234567890"
+    }
+  ],
+  "proxyList": []
 }
