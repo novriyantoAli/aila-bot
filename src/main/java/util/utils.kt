@@ -10,6 +10,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 
+private const val FILE_CREDENTIAL = "credential.json"
 /**
  * true for empty
  * false for not
@@ -36,7 +37,7 @@ fun deleteDirectory(directoryToBeDeleted: File): Boolean {
 fun writeCredentials(username: String? = null, password: String? = null){
     val activeCredentials = ActiveCredential(username.toString(), password.toString())
 
-    val writer: Writer = FileWriter("credential.json")
+    val writer: Writer = FileWriter(FILE_CREDENTIAL)
 
     Gson().toJson(activeCredentials, writer)
 

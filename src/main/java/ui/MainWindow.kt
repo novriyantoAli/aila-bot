@@ -2,6 +2,7 @@ package ui
 
 import Launcher.Companion.USER_DIR
 import core.YoutubePlayer
+import io.javalin.core.util.FileUtil
 import kotlinx.coroutines.*
 import model.Account
 import model.Configuration
@@ -87,39 +88,47 @@ class MainWindow(t: String, private val os: String, private val configuration: C
 
     /**
      * INSTALL PROFILE ALGORITHM
+     * 1. copy default to new directory with name in profile
+     * 2. open browser with userdir local and profile local
      * 1. open browser, with local url
      */
     private fun installProfile() {
         for (i in configuration.configurationProfile) {
             if (os == i.os) {
                 for (j in configuration.profile.detail) {
-                    // check if empty
                     val profileName = configuration.profile.prefix + configuration.profile.split + j.name
-                    if (checkEmptyDirectory((System.getProperty(USER_DIR)+"/"+profileName))) {
-                        // delete in system
-                        val path = i.pathPrefix + System.getProperty(USER_NAME) + i.pathPostfix + profileName
-                        util.deleteDirectory(Paths.get(path).toFile())
+                    // delete directory with profile name
+                    util.deleteDirectory(Paths.get((System.getProperty(USER_DIR) + "/" + profileName)).toFile())
 
-                        copyDirectory(Paths.get((System.getProperty(USER_DIR)+"/"+i.profileDefault)), path)
-                        // open browser
-                        val arguments = arrayListOf<String>()
-                        arguments.add(i.command.browser)
-                        i.command.browserArguments.forEach { args ->
-                            if (args.contains("profile-directory"))
-                                arguments.add(args + profileName)
-                        }
-                        arguments.add("https://accounts.google.com")
+                    // copy from default to running directory
+                    val pathToRunningDirectory = System.getProperty(USER_DIR) + configuration.runningDirectory + configuration.defaultDirectory.substring(1, configuration.defaultDirectory.length)
+                    val pathToDefaultDirectory = System.getProperty(USER_DIR) + configuration.defaultDirectory
+                    copyDirectory(Paths.get(pathToDefaultDirectory), pathToRunningDirectory)
 
-                        writeCredentials(j.username, j.password)
-
-                        val process = Runtime.getRuntime().exec(arguments.toTypedArray())
-                        process.waitFor()
-
-                        writeCredentials()
-
-                        // copy again from system to local
-                        copyDirectory(Paths.get(path),(System.getProperty(USER_DIR)+"/"+profileName))
+                    // now open browser with profile name and directory data using default is a owner
+                    val arguments = arrayListOf<String>()
+                    arguments.add(i.command.browser)
+                    i.command.browserArguments.forEach { args ->
+                        if (args.contains("profile-directory"))
+                            arguments.add(args + configuration.defaultDirectory.substring(1, configuration.defaultDirectory.length))
+                        else if (args.contains("user-data-dir"))
+                            arguments.add((args + pathToRunningDirectory))
+                        else
+                            arguments.add(args)
                     }
+
+                    writeCredentials(j.username, j.password)
+
+                    val process = Runtime.getRuntime().exec(arguments.toTypedArray())
+                    process.waitFor()
+
+                    writeCredentials()
+
+                    // copy form running to local for good cookie and history
+                    copyDirectory(Paths.get(pathToRunningDirectory), (System.getProperty(USER_DIR) + "/" + profileName))
+
+                    // delete directory
+                    util.deleteDirectory(Paths.get(pathToRunningDirectory).toFile())
                 }
 
                 break
@@ -198,7 +207,7 @@ class MainWindow(t: String, private val os: String, private val configuration: C
 
                     // open with random index
                     val youtube = YoutubePlayer(
-                        profileFolder = accountConvert[randomIndexProfile].profile.toString(),
+                        profileFolder = configuration.defaultDirectory.substring(1, configuration.defaultDirectory.length),
                         channelName = configuration.channelName,
                         playlistName = configuration.channelPlaylistTargetName,
                         playlistCode = configuration.channelPlaylistTargetCode,

@@ -15,7 +15,7 @@
       "command": {
         "browser": "chrome",
         "browserArguments": [
-          "https://www.google.com",
+          "https://accounts.google.com",
           "--user-data-dir=",
           "--profile-directory="
         ],
@@ -33,7 +33,7 @@
       "command":     {
         "browser": "chromium",
         "browserArguments": [
-          "https://www.google.com",
+          "https://accounts.google.com",
           "--user-data-dir=",
           "--profile-directory="
         ],

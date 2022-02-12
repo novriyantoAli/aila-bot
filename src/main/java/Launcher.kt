@@ -12,6 +12,7 @@ import util.copyDirectory
 import util.deleteDirectory
 
 import java.awt.EventQueue
+import java.io.File
 import java.io.FileReader
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -34,7 +35,7 @@ class Launcher {
         private const val URL_INSTALLATION = "/installation"
 
         const val USER_DIR = "user.dir"
-        const val OS_NAME = "os.name"
+        private const val OS_NAME = "os.name"
 
         private const val APP_NAME = "Aila BOT"
 
@@ -78,6 +79,10 @@ class Launcher {
                 if (osSelected == null)
                     throw UnknownError("operation system not detected")
 
+                val directoryRunning = File((System.getProperty(USER_DIR) + config.runningDirectory.substring(0, (config.runningDirectory.length-1))))
+                if (!directoryRunning.exists() || !directoryRunning.isDirectory) {
+                    directoryRunning.mkdir()
+                }
 
                 /**
                  * NEW ALGORITHM
