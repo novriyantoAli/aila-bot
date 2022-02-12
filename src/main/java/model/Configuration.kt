@@ -10,5 +10,7 @@ data class Configuration(
     val profileList: List<String>,
     val configurationAccount: List<ConfigurationAccount>,
     val proxyList: List<String>,
-    val profile: Profile
+    val profile: Profile,
+    val defaultDirectory: String,
+    val runningDirectory: String
 )

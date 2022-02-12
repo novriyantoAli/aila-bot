@@ -48,8 +48,8 @@ class YoutubePlayer(val profileFolder: String, val profileLocation: String, priv
     private fun loadOptions(): ChromeOptions {
         val options = ChromeOptions()
         options.addArguments("start-maximized")
-        options.addArguments("--user-data-dir=$profileLocation")
         options.addArguments("--profile-directory=$profileFolder")
+        options.addArguments("--user-data-dir=$profileLocation")
 
         options.setExperimentalOption("useAutomationExtension", false)
         options.setExperimentalOption("excludeSwitches", listOf("enable-automation"))
@@ -84,7 +84,7 @@ class YoutubePlayer(val profileFolder: String, val profileLocation: String, priv
     }
 
 
-    fun goToHomePage() {
+    private fun goToHomePage() {
         driver.get(URL)
 
         waitDocumentReady()
@@ -127,7 +127,7 @@ class YoutubePlayer(val profileFolder: String, val profileLocation: String, priv
         }
 
         waitDocumentReady()
-        wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.className("tp-yt-paper-tab")));
+        wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.className("tp-yt-paper-tab")))
         val tabs = driver.findElements(By.className("tp-yt-paper-tab"))
         for (tab in tabs) {
             if (tab.text.trim().contains("PLAYLIST", ignoreCase = true)) {
@@ -178,12 +178,7 @@ class YoutubePlayer(val profileFolder: String, val profileLocation: String, priv
     }
 
     fun checkPlaylistEnd(): Boolean {
-        return try {
-            waitDocumentReady()
-            if (driver.currentUrl.contains(playlistCode, ignoreCase = true))
-                return false
-            true
-        } catch (e: Exception){ e.printStackTrace(); true }
+        return !driver.currentUrl.contains(playlistCode, ignoreCase = true)
     }
 
     fun checkAd(): String? {

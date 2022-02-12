@@ -16,14 +16,9 @@ import java.awt.event.ActionEvent
 import java.awt.event.ActionListener
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
-import java.io.File
-import java.io.IOException
-import java.nio.file.Files
-import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.stream.Collectors
 import javax.swing.*
-import kotlin.system.exitProcess
 
 
 @DelicateCoroutinesApi
@@ -84,8 +79,6 @@ class MainWindow(t: String, private val os: String, private val configuration: C
                     removeWithRegenerateTask(youtube.profileFolder)
 
                     break
-//                    youtube.goToHomePage(false)
-//                    youtube.searchAndGoFirst(configuration.keyword)
                 }
                 delay(5000)
             }
@@ -122,6 +115,8 @@ class MainWindow(t: String, private val os: String, private val configuration: C
                         val process = Runtime.getRuntime().exec(arguments.toTypedArray())
                         process.waitFor()
 
+                        writeCredentials()
+
                         // copy again from system to local
                         copyDirectory(Paths.get(path),(System.getProperty(USER_DIR)+"/"+profileName))
                     }
@@ -142,8 +137,8 @@ class MainWindow(t: String, private val os: String, private val configuration: C
     private fun loginMode(){
         // delete directory in system
         for (i in configuration.configurationProfile) {
-            if (System.getProperty(Launcher.OS_NAME).contains(i.os, ignoreCase = true)) {
-                val profileLocation = i.pathPrefix + System.getProperty(USER_NAME) + i.pathPostfix
+            if (i.os == os) {
+                val directoryLocation = System.getProperty(USER_DIR) + configuration.runningDirectory
                 for (j in configuration.profile.detail) {
                     var profileNowExists = false
                     for (k in accountModel.toArray()) {
@@ -154,12 +149,13 @@ class MainWindow(t: String, private val os: String, private val configuration: C
                         }
                     }
                     if (!profileNowExists) {
-                        val fullPath = profileLocation + configuration.profile.prefix + configuration.profile.split + j.name
+                        val profileName = configuration.profile.prefix + configuration.profile.split + j.name
+                        val fullPath = directoryLocation + profileName
                         val path = Paths.get(fullPath)
                         util.deleteDirectory(path.toFile())
 
                         // fourth step
-                        copyDirectory((Paths.get((System.getProperty(USER_DIR)+ "/" + i.profileDefault))), fullPath)
+                        copyDirectory((Paths.get((System.getProperty(USER_DIR) + "/" + profileName))), fullPath)
                     }
                 }
 
@@ -206,7 +202,7 @@ class MainWindow(t: String, private val os: String, private val configuration: C
                         channelName = configuration.channelName,
                         playlistName = configuration.channelPlaylistTargetName,
                         playlistCode = configuration.channelPlaylistTargetCode,
-                        profileLocation = profileLocation
+                        profileLocation = (directoryLocation + accountConvert[randomIndexProfile].profile.toString())
                     )
 
                     val task = Task(
@@ -218,6 +214,7 @@ class MainWindow(t: String, private val os: String, private val configuration: C
                     tasks.add(task)
 
                     accountModel.addElement(accountConvert[randomIndexProfile])
+
                 } else {
                     JOptionPane.showMessageDialog(this@MainWindow, "sepertinya semua profile telah dipakai")
                 }
@@ -236,13 +233,13 @@ class MainWindow(t: String, private val os: String, private val configuration: C
      */
     private fun notLoginMode() {
         // check if exists
-        var profileNumber = 1
-        var profileName = "Profile"
+        var directoryNumber = 1
+        var directoryName = "chrome"
         while (true) {
             var valLocalBol = true
             for (item in accountModel.toArray()) {
                 val i = item as Account
-                if (i.profile.toString().contains(("$profileName $profileNumber"), ignoreCase = true)){
+                if (i.profile.toString().contains((directoryName + directoryNumber), ignoreCase = true)){
                     valLocalBol = false
                     break
                 }
@@ -250,43 +247,35 @@ class MainWindow(t: String, private val os: String, private val configuration: C
             if (valLocalBol)
                 break
 
-            profileNumber += 1
+            directoryNumber += 1
         }
 
         // delete directory from system
-        var profileLocation: String? = null
-        profileName = "$profileName $profileNumber"
+        directoryName += directoryNumber
         for (i in configuration.configurationProfile) {
-            if (System.getProperty(Launcher.OS_NAME).contains(i.os, ignoreCase = true)) {
-                profileLocation = i.pathPrefix + System.getProperty(USER_NAME) + i.pathPostfix
-
-                val path = Paths.get((profileLocation + profileName))
-                util.deleteDirectory(path.toFile())
-
+            if (i.os == os) {
+                util.deleteDirectory(Paths.get((System.getProperty(USER_DIR) + configuration.runningDirectory + directoryName)).toFile())
                 break
             }
         }
 
-        // launch
-        if (profileLocation != null) {
-            val youtube = YoutubePlayer(
-                profileFolder = profileName,
-                channelName = configuration.channelName,
-                playlistName = configuration.channelPlaylistTargetName,
-                playlistCode = configuration.channelPlaylistTargetCode,
-                profileLocation = profileLocation
-            )
+        val youtube = YoutubePlayer(
+            profileFolder = directoryName,
+            channelName = configuration.channelName,
+            playlistName = configuration.channelPlaylistTargetName,
+            playlistCode = configuration.channelPlaylistTargetCode,
+            profileLocation = (System.getProperty(USER_DIR) + configuration.runningDirectory + directoryName)
+        )
 
-            val task = Task(
-                profileName = profileName,
-                job = execute(youtube),
-                driver = youtube
-            )
+        val task = Task(
+            profileName = directoryName,
+            job = execute(youtube),
+            driver = youtube
+        )
 
-            tasks.add(task)
+        tasks.add(task)
 
-            accountModel.addElement(Account(profile = profileName))
-        }
+        accountModel.addElement(Account(profile = directoryName))
     }
 
     @DelicateCoroutinesApi
@@ -298,150 +287,10 @@ class MainWindow(t: String, private val os: String, private val configuration: C
                     return
                 }
             }
-
             loginMode()
-//
-//            if (accountModel.size == 0) {
-//                regenerateCache(configuration.profileList[0])
-//
-//                val pr = getPathProfileTo() ?: exitProcess(0)
-//
-//                val youtube = YoutubePlayer(
-//                    profileFolder = configuration.profileList[0],
-//                    channelName = configuration.channelName,
-//                    playlistName = configuration.channelPlaylistTargetName,
-//                    playlistCode = configuration.channelPlaylistTargetCode,
-//                    profileLocation = ""
-//                )
-//
-//                val task = Task(
-//                    profileName = configuration.profileList[0],
-//                    job = execute(youtube),
-//                    driver = youtube
-//                )
-//
-//                tasks.add(task)
-//
-//                accountModel.addElement(
-//                    Account(
-//                        username = configuration.configurationAccount[0].username,
-//                        password = configuration.configurationAccount[0].password,
-//                        profile = configuration.profileList[0]
-//                    )
-//                )
-//                // get profile one
-//                // execute browser
-//            } else {
-//                // first check account if not exists in account model
-//                val accountConvert = arrayListOf<Account>()
-//                for (item in configuration.configurationAccount) {
-//                    accountConvert.add(Account(username = item.username, password = item.password))
-//                }
-//
-//                for (item in accountModel.toArray()) {
-//                    val i = item as Account
-//                    val res = accountConvert.stream()
-//                        .filter { ac -> ac.username.equals(i.username) }
-//                        .collect(Collectors.toList())
-//                    if (res.size > 0)
-//                        accountConvert.remove(res[0])
-//                }
-//
-//                if (accountConvert.size > 0) {
-//                    // check if have empty profile
-//                    val profileConvert = arrayListOf<Account>()
-//                    for (item in configuration.profileList) {
-//                        profileConvert.add(Account(profile = item))
-//                    }
-//
-//                    for (item in accountModel.toArray()) {
-//                        val i = item as Account
-//                        val res = profileConvert.stream()
-//                            .filter { ac -> ac.profile.equals(i.profile) }
-//                            .collect(Collectors.toList())
-//                        if (res.size > 0)
-//                            profileConvert.remove(res[0])
-//                    }
-//
-//                    if (profileConvert.size > 0) {
-//                        regenerateCache(profileConvert[0].profile!!)
-//
-//                        accountConvert[0].profile = profileConvert[0].profile
-//
-//                        val pr = getPathProfileTo() ?: exitProcess(0)
-//
-//                        val youtube = YoutubePlayer(
-//                            profileFolder = profileConvert[0].profile!!,
-//                            channelName = configuration.channelName,
-//                            playlistName = configuration.channelPlaylistTargetName,
-//                            playlistCode = configuration.channelPlaylistTargetCode,
-//                            profileLocation = ""
-//                        )
-//
-//                        val task = Task(
-//                            profileName = profileConvert[0].profile!!,
-//                            job = execute(youtube),
-//                            driver = youtube
-//                        )
-//
-//                        tasks.add(task)
-//                        accountModel.addElement(accountConvert[0])
-//
-//                    } else {
-//                        JOptionPane.showMessageDialog(this@MainWindow, "Kehabisan profil bos")
-//                        return
-//                    }
-//                } else {
-//                    JOptionPane.showMessageDialog(this@MainWindow, "Akun Telah terisi selurunya")
-//                    return
-//                }
-//            }
         } else {
             notLoginMode()
         }
-    }
-
-    private fun regenerateCache(profileSelected: String) {
-        val pathProfileTo = getPathProfileTo() ?: exitProcess(0)
-        val pth = Paths.get((pathProfileTo + profileSelected))
-        if (Files.exists(pth)) {
-            deleteDirectoryConfig(pth.toFile())
-        }
-        val fromPath = Paths.get(getPathProfileFrom())
-
-        Files.walk(fromPath).forEach { source: Path -> copySourceToDest(fromPath, source, (pathProfileTo + profileSelected)) }
-    }
-
-    private fun getPathProfileTo(): String? {
-        for (cp in configuration.configurationProfile) {
-            if (System.getProperty(Launcher.OS_NAME).contains(cp.os, ignoreCase = true)) {
-                return cp.pathPrefix + System.getProperty(USER_NAME) + cp.pathPostfix
-            }
-        }
-
-        return null
-    }
-
-    private fun getPathProfileFrom(): String {
-        return "${System.getProperty(USER_DIR)}/profile_${os}_default"
-    }
-
-    private fun copySourceToDest(fromPath: Path, source: Path, dstPath: String) {
-        val destination = Paths.get(dstPath, source.toString().substring(fromPath.toString().length))
-        try {
-            Files.copy(source, destination)
-        } catch (e: IOException) {
-            e.printStackTrace()
-        }
-    }
-
-    private fun deleteDirectoryConfig(directoryToBeDeleted: File): Boolean {
-        val allContents = directoryToBeDeleted.listFiles()
-        if (allContents != null) {
-            for (file in allContents)
-                deleteDirectoryConfig(file)
-        }
-        return directoryToBeDeleted.delete()
     }
 
     @DelicateCoroutinesApi
@@ -541,32 +390,32 @@ class MainWindow(t: String, private val os: String, private val configuration: C
         if (itemSelected != null) {
             tasks.remove(itemSelected)
 
-            regenerateCache(itemSelected.profileName)
+            val profileLocation = (System.getProperty(USER_DIR) + configuration.runningDirectory + profileName)
+            util.deleteDirectory(Paths.get(profileLocation).toFile())
 
-            accountModel.toArray().forEach {
-                val account = it as Account
-                if(account.profile!!.contains(itemSelected.profileName)) {
-                    // create new task
-                    for (conf in configuration.configurationProfile) {
-                        if (System.getProperty(Launcher.OS_NAME).contains(conf.os, ignoreCase = true)) {
+            for (i in configuration.configurationProfile) {
+                if (os == i.os) {
+                    for (j in accountModel.toArray()) {
+                        val acc = j as Account
+                        if (acc.profile.toString().contains(itemSelected.profileName)) {
                             val youtube = YoutubePlayer(
                                 playlistName = configuration.channelPlaylistTargetName,
                                 playlistCode = configuration.channelPlaylistTargetCode,
                                 profileFolder = profileName,
                                 channelName = configuration.channelName,
-                                profileLocation = (conf.pathPrefix + System.getProperty(USER_NAME) + conf.pathPostfix)
+                                profileLocation = profileLocation
                             )
 
                             val task = Task(
-                                profileName = account.profile!!,
+                                profileName = profileName,
                                 job = execute(youtube),
                                 driver = youtube
                             )
 
                             tasks.add(task)
-                            break
                         }
                     }
+                    break
                 }
             }
         }
@@ -585,11 +434,7 @@ class MainWindow(t: String, private val os: String, private val configuration: C
         task.job.cancel()
         if (task.job.isCancelled) {
             task.driver.exit()
-
             delay(5000)
-
-            regenerateCache(task.profileName)
-
             tasks.remove(task)
             accountModel.remove(accountJList.selectedIndex)
         }

@@ -4,6 +4,8 @@
   "channelPlaylistTargetName": "bsic",
   "channelPlaylistTargetCode": "PL0h__DPaUWkqXyAj2Qu-pj965poZx3Lem",
   "port": 7070,
+  "defaultDirectory": "/default",
+  "runningDirectory": "/data_running/",
   "configurationProfile": [
     {
       "os": "windows",
@@ -13,7 +15,8 @@
       "command": {
         "browser": "chrome",
         "browserArguments": [
-          "https://www.youtube.com",
+          "https://www.google.com",
+          "--user-data-dir=",
           "--profile-directory="
         ],
         "killer": "",
@@ -30,7 +33,8 @@
       "command":     {
         "browser": "chromium",
         "browserArguments": [
-          "https://www.youtube.com",
+          "https://www.google.com",
+          "--user-data-dir=",
           "--profile-directory="
         ],
         "killer": "pkill",
@@ -46,7 +50,7 @@
     "Profile 3"
   ],
   "profile": {
-    "prefix": "profile",
+    "prefix": "ch",
     "split": "_",
     "detail": [
       {
